@@ -5,6 +5,10 @@ class Deck
     new_game
   end
 
+  def take_card
+    @cards.shift
+  end
+
   private
 
   def new_game

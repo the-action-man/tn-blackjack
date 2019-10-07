@@ -5,4 +5,8 @@ class Card
     @name = name
     @value = value
   end
+
+  def ace?
+    @name.start_with?('ace')
+  end
 end
