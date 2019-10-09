@@ -1,17 +1,23 @@
 class Deck
+  MINIMUM_CARDS_FOR_ONE_GAME = 6
+
   attr_reader :cards
 
   def initialize
-    new_game
+    new_deck
   end
 
   def take_card
     @cards.shift
   end
 
+  def refresh_deck
+    new_deck if @cards.size < MINIMUM_CARDS_FOR_ONE_GAME
+  end
+
   private
 
-  def new_game
+  def new_deck
     @cards = new_deck
     @cards.shuffle
   end

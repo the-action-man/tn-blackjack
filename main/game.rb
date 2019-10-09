@@ -7,7 +7,8 @@ class Game
   end
 
   def new_game
-    @deck = Deck.new
+    @deck ||= Deck.new
+    @deck.refresh_deck
   end
 
   def any_bank_empty?
@@ -27,25 +28,11 @@ class Game
   # 0 - values are the same
   # -1 - no
   def user_winner?
-    user_values = calc_cards_values(@user)
-    dealer_values = calc_cards_values(@dealer)
+    user_values = @user.cards_values
+    dealer_values = @dealer.cards_values
     return 0 if user_values > MAX_VALUE && dealer_values > MAX_VALUE
     return 0 if user_values == MAX_VALUE
     return 1 if user_values > dealer_values
     return -1 if user_values < dealer_values
-  end
-
-  private
-
-  def calc_cards_values(gamer)
-    value = 0
-    aces_quantity = 0
-    gamer.cards.each do |card|
-      value += card.value
-      aces_quantity += 1 if card.ace?
-    end
-    value += 10 if aces_quantity > 1 # Default 1 was added before (1 + 10 = 11)
-    value += 10 if aces_quantity == 1 && value + 10 <= MAX_VALUE
-    value
   end
 end
