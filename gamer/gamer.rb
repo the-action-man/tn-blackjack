@@ -1,6 +1,7 @@
 class Gamer
   INITIAL_BANK = 100
   BET = 10
+  MAX_VALUE = 21
 
   attr_reader :name, :bank, :cards, :cards_values
 
@@ -32,11 +33,16 @@ class Gamer
   end
 
   def take_win
+    calc_bank(BET * 2)
+    @cards = []
+  end
+
+  def return_bet
     calc_bank(BET)
   end
 
   def accept_defeat
-    calc_bank(-BET)
+    @cards = []
   end
 
   private

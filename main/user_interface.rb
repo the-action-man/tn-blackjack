@@ -15,16 +15,16 @@ class UserInterface
       break if exit_game
       break if @game.any_bank_empty?
 
-      puts '   *** NEW GAME ***'
+      puts '   *** NEW GAME (Bet is 10) ***'
       deck = @game.new_game
       2.times { @dealer.take_card(deck.take_card) }
       @dealer.make_bet
-      @dealer.show_info(false)
       2.times { @user.take_card(deck.take_card) }
       @user.make_bet
-      @user.show_info
 
       loop do
+        @dealer.show_info(false)
+        @user.show_info
         puts 'Enter number of game action:'
         puts '0- exit'
         puts '1- skip'
@@ -71,16 +71,24 @@ class UserInterface
   end
 
   def open_cards
-    puts '---Open cards---'
+    puts '--- --- Open cards --- ---'
     @dealer.show_info
     @user.show_info
-    if @game.user_winner?
+    case @game.user_winner?
+    when 1
       @dealer.accept_defeat
       @user.take_win
-    else
+      msg_prefix = 'You are winner!'
+    when 0
+      msg_prefix = 'Winner is absent!'
+      @dealer.return_bet
+      @user.return_bet
+    when -1
       @dealer.take_win
       @user.accept_defeat
+      msg_prefix = 'Dealer is winner!'
     end
-    puts '----------------'
+    puts "#{msg_prefix} Your bank: #{@user.bank}. Dealer bank: #{@dealer.bank}"
+    puts '--- --- --- --- --- --- ---'
   end
 end

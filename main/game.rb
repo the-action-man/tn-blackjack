@@ -1,4 +1,5 @@
 class Game
+  MINIMUM_CARDS_FOR_ONE_GAME = 6
   MAX_VALUE = 21
 
   def initialize(user, dealer)
@@ -8,19 +9,20 @@ class Game
 
   def new_game
     @deck ||= Deck.new
-    @deck.refresh_deck
+    @deck = Deck.new if @deck.cards.size < MINIMUM_CARDS_FOR_ONE_GAME
+    @deck
   end
 
   def any_bank_empty?
-    if @user.bank == 0
+    if @user.bank.zero?
       puts "#{@user.name}', your bank is empty'! Dealer is winner!"
-      false
+      true
     end
-    if @dealer.bank == 0
+    if @dealer.bank.zero?
       puts 'Congratulations! Dealer bank is empty! You are winner!!! '
-      false
+      true
     end
-    true
+    false
   end
 
   # The method returns:

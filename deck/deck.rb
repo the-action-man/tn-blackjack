@@ -1,6 +1,4 @@
 class Deck
-  MINIMUM_CARDS_FOR_ONE_GAME = 6
-
   attr_reader :cards
 
   def initialize
@@ -11,18 +9,14 @@ class Deck
     @cards.shift
   end
 
-  def refresh_deck
-    new_deck if @cards.size < MINIMUM_CARDS_FOR_ONE_GAME
-  end
-
   private
 
   def new_deck
-    @cards = new_deck
-    @cards.shuffle
+    @cards = generate_new_deck
+    @cards.shuffle!
   end
 
-  def new_deck
+  def generate_new_deck
     new_cards = []
     cards_without_suits = evaluate_cards_without_suits
     suits = %w[+ <3 ^ <>]
