@@ -19,8 +19,7 @@ class Deck
   def generate_new_deck
     new_cards = []
     cards_without_suits = evaluate_cards_without_suits
-    suits = %w[+ <3 ^ <>]
-    suits.each do |suit|
+    Card::SUITS.each do |suit|
       cards_without_suits.each do |name, value|
         new_cards << Card.new("#{name}#{suit}", value)
       end
@@ -31,10 +30,10 @@ class Deck
   def evaluate_cards_without_suits
     cards = {}
     (2..10).each { |value| cards[value.to_s] = value }
-    cards['jack'] = 10
-    cards['queen'] = 10
-    cards['king'] = 10
-    cards['ace'] = 1
+    cards[Card::JACK] = 10
+    cards[Card::QUEEN] = 10
+    cards[Card::KING] = 10
+    cards[Card::ACE] = 1
     cards
   end
 end

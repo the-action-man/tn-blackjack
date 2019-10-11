@@ -25,16 +25,16 @@ class Gamer
     print "#{@name} - Cards: "
     if show_cards
       @cards.each { |card| print "| #{card.name} |" }
-      print " Values: #{@cards_values}"
+      print " Values=#{@cards_values}"
     else
       @cards.size.times { print '| **** |' }
     end
-    print " Bank: #{@bank}\n"
+    print " Bank=#{@bank}\n"
   end
 
   def take_win
     calc_bank(BET * 2)
-    @cards = []
+    discard_cards
   end
 
   def return_bet
@@ -42,6 +42,10 @@ class Gamer
   end
 
   def accept_defeat
+    discard_cards
+  end
+
+  def discard_cards
     @cards = []
   end
 

@@ -58,7 +58,6 @@ class UserInterface
           else
             @dealer.take_card(deck.take_card)
             puts 'Dealer takes card'
-            @dealer.show_info(false)
           end
         end
         if @dealer.cards.size == CARDS_QUANTITY_TO_OPEN \
@@ -83,12 +82,14 @@ class UserInterface
       msg_prefix = 'Winner is absent!'
       @dealer.return_bet
       @user.return_bet
+      @dealer.discard_cards
+      @user.discard_cards
     when -1
       @dealer.take_win
       @user.accept_defeat
       msg_prefix = 'Dealer is winner!'
     end
     puts "#{msg_prefix} Your bank: #{@user.bank}. Dealer bank: #{@dealer.bank}"
-    puts '--- --- --- --- --- --- ---'
+    print "--- --- --- --- --- --- ---\n\n"
   end
 end
