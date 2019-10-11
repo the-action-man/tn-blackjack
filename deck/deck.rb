@@ -5,6 +5,10 @@ class Deck
     new_deck
   end
 
+  def refresh!
+    new_deck
+  end
+
   def take_card
     @cards.shift
   end

@@ -21,28 +21,12 @@ class Gamer
     @cards_values = calc_cards_values
   end
 
-  def show_info(show_cards = true)
-    print "#{@name} - Cards: "
-    if show_cards
-      @cards.each { |card| print "| #{card.name} |" }
-      print " Values=#{@cards_values}"
-    else
-      @cards.size.times { print '| **** |' }
-    end
-    print " Bank=#{@bank}\n"
-  end
-
   def take_win
     calc_bank(BET * 2)
-    discard_cards
   end
 
   def return_bet
     calc_bank(BET)
-  end
-
-  def accept_defeat
-    discard_cards
   end
 
   def discard_cards

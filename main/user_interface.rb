@@ -1,95 +1,91 @@
 class UserInterface
-  MAX_DEALER_VALUES_TO_GET_CARD = 17
-  CARDS_QUANTITY_TO_OPEN = 3
+  attr_reader :user_name
 
-  def start
+  def show_msg_hello
     puts 'Hi! It is Blackjack game!'
-    puts 'Please, enter your name:'
-    user_name = gets.chomp.to_s
-    @user = User.new(user_name)
-    @dealer = Dealer.new
-    @game = Game.new(@user, @dealer)
-    exit_game = false
-
-    loop do
-      break if exit_game
-      break if @game.any_bank_empty?
-
-      puts '   *** NEW GAME (Bet is 10) ***'
-      deck = @game.new_game
-      2.times { @dealer.take_card(deck.take_card) }
-      @dealer.make_bet
-      2.times { @user.take_card(deck.take_card) }
-      @user.make_bet
-
-      loop do
-        @dealer.show_info(false)
-        @user.show_info
-        puts 'Enter number of game action:'
-        puts '0- exit'
-        puts '1- skip'
-        puts '2- take a card'
-        puts '3- open cards'
-        case gets.chomp.to_i
-        when 0
-          exit_game = true
-          break
-        when 1
-          puts 'You selected skip'
-        when 2
-          if @user.cards.size == CARDS_QUANTITY_TO_OPEN
-            put 'You already have 3 cards. It is maximum.'
-          else
-            @user.take_card(deck.take_card)
-            @user.show_info
-          end
-        when 3
-          open_cards
-          break
-        else
-          puts 'Incorrect selection'
-        end
-
-        if @dealer.cards.size == CARDS_QUANTITY_TO_OPEN
-          'Dealer already have 3 cards'
-        else
-          if @dealer.cards_values >= MAX_DEALER_VALUES_TO_GET_CARD
-            puts 'Dealer do skip'
-          else
-            @dealer.take_card(deck.take_card)
-            puts 'Dealer takes card'
-          end
-        end
-        if @dealer.cards.size == CARDS_QUANTITY_TO_OPEN \
-                                  && @user.cards.size == CARDS_QUANTITY_TO_OPEN
-          open_cards
-          break
-        end
-      end
-    end
   end
 
-  def open_cards
+  def enter_user_name
+    puts 'Please, enter your name:'
+    @user_name = gets.chomp.to_s
+  end
+
+  def show_msg_new_game
+    print "\n   *** NEW GAME (Bet is 10) ***\n"
+  end
+
+  def show_gamer_info(gamer, show_cards = true)
+    print "#{gamer.name} - Cards: "
+    if show_cards
+      gamer.cards.each { |card| print "| #{card.name} |" }
+      print " Values=#{gamer.cards_values}"
+    else
+      gamer.cards.size.times { print '| **** |' }
+    end
+    print " Bank=#{gamer.bank}\n"
+  end
+
+  def enter_user_action
+    puts 'Enter number of game action:'
+    puts '0- exit'
+    puts '1- skip'
+    puts '2- take a card'
+    puts '3- open cards'
+    gets.chomp.to_i
+  end
+
+  def show_msg_user_action_skip
+    puts 'You selected skip'
+  end
+
+  def show_msg_user_takes_card
+    puts 'You take card'
+  end
+
+  def show_msg_you_have_3_cards
+    puts 'You already have 3 cards. It is maximum.'
+  end
+
+  def show_msg_incorrect_selection
+    puts 'Incorrect selection'
+  end
+
+  def show_msg_dealer_has_3_cards
+    puts 'Dealer already have 3 cards'
+  end
+
+  def show_msg_dealer_do_skip
+    puts 'Dealer do skip'
+  end
+
+  def show_msg_dealer_takes_card
+    puts 'Dealer takes card'
+  end
+
+  def show_open_cards(dealer, user, is_user_winner)
     puts '--- --- Open cards --- ---'
-    @dealer.show_info
-    @user.show_info
-    case @game.user_winner?
+    show_gamer_info(dealer)
+    show_gamer_info(user)
+    case is_user_winner
     when 1
-      @dealer.accept_defeat
-      @user.take_win
       msg_prefix = 'You are winner!'
     when 0
       msg_prefix = 'Winner is absent!'
-      @dealer.return_bet
-      @user.return_bet
-      @dealer.discard_cards
-      @user.discard_cards
     when -1
-      @dealer.take_win
-      @user.accept_defeat
       msg_prefix = 'Dealer is winner!'
+    else
+      raise BlackjackError, "'#{is_user_winner}' is incorrect winner value. " \
+                            'Expected values: 1, 0, -1.'
     end
-    puts "#{msg_prefix} Your bank: #{@user.bank}. Dealer bank: #{@dealer.bank}"
+    puts "#{msg_prefix} Your bank: #{user.bank}. Dealer bank: #{dealer.bank}"
     print "--- --- --- --- --- --- ---\n\n"
+  end
+
+  def show_msg_dealer_is_winner
+    puts "#{@user_name}', your bank is empty'! Dealer is winner!"
+  end
+
+  def show_msg_user_is_winner
+    puts 'Congratulations! Dealer bank is empty! You are winner!!!'
   end
 end
