@@ -89,13 +89,11 @@ class Game
   def handle_dealer_action
     if @dealer.cards.size == CARDS_QUANTITY_TO_OPEN
       @ui.show_msg_dealer_has_3_cards
+    elsif @dealer.cards_values >= MAX_DEALER_VALUES_TO_GET_CARD
+      @ui.show_msg_dealer_do_skip
     else
-      if @dealer.cards_values >= MAX_DEALER_VALUES_TO_GET_CARD
-        @ui.show_msg_dealer_do_skip
-      else
-        @dealer.take_card(@deck.take_card)
-        @ui.show_msg_dealer_takes_card
-      end
+      @dealer.take_card(@deck.take_card)
+      @ui.show_msg_dealer_takes_card
     end
   end
 
