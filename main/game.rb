@@ -19,8 +19,7 @@ class Game
     initialize_start
 
     loop do
-      break if @exit_game
-      break if any_bank_empty?
+      break if @exit_game || any_bank_empty?
 
       do_game
     end
@@ -30,8 +29,8 @@ class Game
 
   def take_cards
     @deck.refresh! if @deck.cards.size < MINIMUM_CARDS_FOR_ONE_GAME
-    2.times { @dealer.take_card(@deck.take_card) }
-    2.times { @user.take_card(@deck.take_card) }
+    2.times { @dealer.hand.take_card(@deck.take_card) }
+    2.times { @user.hand.take_card(@deck.take_card) }
   end
 
   def make_bet
@@ -45,8 +44,7 @@ class Game
     take_cards
     @open_cards_occurs = false
     loop do
-      break if @exit_game
-      break if @open_cards_occurs
+      break if @exit_game || @open_cards_occurs
 
       do_game_actions
     end
@@ -56,12 +54,11 @@ class Game
     @ui.show_gamer_info(@dealer, false)
     @ui.show_gamer_info(@user)
     handle_user_action
-    return if @exit_game
-    return if @open_cards_occurs
+    return if @exit_game || @open_cards_occurs
 
     handle_dealer_action
-    if @dealer.cards.size == CARDS_QUANTITY_TO_OPEN \
-                                  && @user.cards.size == CARDS_QUANTITY_TO_OPEN
+    if @dealer.hand.cards.size == CARDS_QUANTITY_TO_OPEN \
+                          && @user.hand.cards.size == CARDS_QUANTITY_TO_OPEN
       open_cards
     end
   end
@@ -73,10 +70,10 @@ class Game
     when 1
       @ui.show_msg_user_action_skip
     when 2
-      if @user.cards.size == CARDS_QUANTITY_TO_OPEN
+      if @user.hand.cards.size == CARDS_QUANTITY_TO_OPEN
         @ui.show_msg_you_have_3_cards
       else
-        @user.take_card(@deck.take_card)
+        @user.hand.take_card(@deck.take_card)
         @ui.show_msg_user_takes_card
       end
     when 3
@@ -87,49 +84,48 @@ class Game
   end
 
   def handle_dealer_action
-    if @dealer.cards.size == CARDS_QUANTITY_TO_OPEN
+    if @dealer.hand.cards.size == CARDS_QUANTITY_TO_OPEN
       @ui.show_msg_dealer_has_3_cards
-    elsif @dealer.cards_values >= MAX_DEALER_VALUES_TO_GET_CARD
+    elsif @dealer.hand.cards_values >= MAX_DEALER_VALUES_TO_GET_CARD
       @ui.show_msg_dealer_do_skip
     else
-      @dealer.take_card(@deck.take_card)
+      @dealer.hand.take_card(@deck.take_card)
       @ui.show_msg_dealer_takes_card
     end
   end
 
   def open_cards
-    is_user_winner = define_user_winner_status
-    case is_user_winner
-    when 1
+    user_status = define_user_status
+    case user_status
+    when GamerStatus::WINNER
       @user.take_win
-    when 0
+    when GamerStatus::DRAWN_GAME
       @dealer.return_bet
       @user.return_bet
-    when -1
+    when GamerStatus::LOSER
       @dealer.take_win
     else
-      raise BlackjackError, "'#{is_user_winner}' is incorrect winner value. " \
+      raise BlackjackError, "'#{user_status}' is incorrect winner value. " \
                             'Expected values: 1, 0, -1.'
     end
-    @ui.show_open_cards(@dealer, @user, is_user_winner)
-    @dealer.discard_cards
-    @user.discard_cards
+    @ui.show_open_cards(@dealer, @user, user_status)
+    @dealer.hand.discard_cards
+    @user.hand.discard_cards
     @open_cards_occurs = true
   end
 
-  # The method returns:
-  # 1 - yes, winner
-  # 0 - values are the same
-  # -1 - no, defeat
-  def define_user_winner_status
-    user_values = @user.cards_values
-    dealer_values = @dealer.cards_values
-    return 0 if user_values > MAX_VALUE && dealer_values > MAX_VALUE
-    return -1 if user_values > MAX_VALUE && dealer_values <= MAX_VALUE
-    return 1 if user_values <= MAX_VALUE && dealer_values > MAX_VALUE
-    return 0 if user_values == dealer_values
-    return 1 if user_values > dealer_values
-    return -1 if user_values < dealer_values
+  def define_user_status
+    user_values = @user.hand.cards_values
+    dealer_values = @dealer.hand.cards_values
+    return GamerStatus::DRAWN_GAME if user_values > MAX_VALUE \
+                                      && dealer_values > MAX_VALUE
+    return GamerStatus::LOSER if user_values > MAX_VALUE \
+                                 && dealer_values <= MAX_VALUE
+    return GamerStatus::WINNER if user_values <= MAX_VALUE \
+                                  && dealer_values > MAX_VALUE
+    return GamerStatus::DRAWN_GAME if user_values == dealer_values
+    return GamerStatus::WINNER if user_values > dealer_values
+    return GamerStatus::LOSER if user_values < dealer_values
   end
 
   def any_bank_empty?

@@ -17,10 +17,10 @@ class UserInterface
   def show_gamer_info(gamer, show_cards = true)
     print "#{gamer.name} - Cards: "
     if show_cards
-      gamer.cards.each { |card| print "| #{card.name} |" }
-      print " Values=#{gamer.cards_values}"
+      gamer.hand.cards.each { |card| print "| #{card.name} |" }
+      print " Values=#{gamer.hand.cards_values}"
     else
-      gamer.cards.size.times { print '| **** |' }
+      gamer.hand.cards.size.times { print '| **** |' }
     end
     print " Bank=#{gamer.bank}\n"
   end
@@ -62,20 +62,20 @@ class UserInterface
     puts 'Dealer takes card'
   end
 
-  def show_open_cards(dealer, user, is_user_winner)
+  def show_open_cards(dealer, user, user_status)
     puts '--- --- Open cards --- ---'
     show_gamer_info(dealer)
     show_gamer_info(user)
-    case is_user_winner
-    when 1
+    case user_status
+    when GamerStatus::WINNER
       msg_prefix = 'You are winner!'
-    when 0
+    when GamerStatus::DRAWN_GAME
       msg_prefix = 'Winner is absent!'
-    when -1
+    when GamerStatus::LOSER
       msg_prefix = 'Dealer is winner!'
     else
-      raise BlackjackError, "'#{is_user_winner}' is incorrect winner value. " \
-                            'Expected values: 1, 0, -1.'
+      raise BlackjackError, "'#{user_status}' is incorrect status value. " \
+                            'Expected values: -1...1'
     end
     puts "#{msg_prefix} Your bank: #{user.bank}. Dealer bank: #{dealer.bank}"
     print "--- --- --- --- --- --- ---\n\n"
